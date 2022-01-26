@@ -1,0 +1,61 @@
+def showMenu() {
+    print "1. Adicionar Album\n";
+    print "2. Mostrar Albuns\n";
+    print "3. Sair\n";
+}
+
+def printShowAlbumsLine(ref, name, ano, banda, editora) {
+    print str_val ref + "\t" + name + "\t" + str_val ano + "\t" + banda + "\t" + editora + "\n";
+}
+
+def showAlbums(albumTable) {
+    printShowAlbumsLine("REF", "NAME", "ANO", "BANDA", "EDITORA");
+    
+    for album in albumTable {
+        printShowAlbumsLine(album<"REF">, album<"NAME">, album<"ANO">, album<"BANDA">, album<"EDITORA">);
+    }
+}
+
+def addAlbum(albumTable, ref, name, ano, banda, editora) {
+    add(ref, name, ano, banda, editora) to albumTable;
+}
+
+def addAlbumInput(album) {
+    print "Referência: ";
+    ref = read_int;
+    
+    print "Nome: ";
+    nome = read_str;
+    
+    print "Ano: ";
+    ano = read_int;
+    
+    print "Banda: ";
+    banda = read_str;
+    
+    print "Editora: ";
+    editora = read_str;
+    
+    addAlbum(album, ref, nome, ano, banda, editora);
+}
+
+album = {"REF": Int, "NAME": String, "ANO": Int, "BANDA": String, "EDITORA": String};
+check album with ["ANO"] > 0;
+
+while true {
+    showMenu();
+    print "Opção escolhida: ";
+    opcao = read_int;
+    
+    if opcao == 1 {
+        addAlbumInput(album);
+    }
+    
+    else if opcao == 2 {
+        showAlbums(album);
+    }
+    
+    else if opcao == 3 {
+        break;
+    }
+}

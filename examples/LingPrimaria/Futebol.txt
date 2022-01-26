@@ -1,0 +1,68 @@
+def printBestThree(equipas) {
+    bestThree = pop 3 from sort equipas by "Pontos" desc;
+    bestThree = pop 3 from bestThree;
+    print "Equipa\t\t" + "V\t" + "E\t" + "D\t" + "GM\t" + "GS\t" + "P\n";
+    for equipa in bestThree {
+    	print equipa<"Nome"> + "\t\t" + str_val equipa<"NumVit"> + "\t" + str_val equipa<"NumEmp"> + "\t";
+    	print str_val equipa<"NumDerr"> + "\t" + str_val equipa<"GolsMarcados"> + "\t" + str_val equipa<"GolsSofridos"> + "\t";
+    	print str_val equipa<"Pontos"> + "\n";
+    }
+}
+
+
+def getResultados(jogos, equipas) {
+    for jogo in jogos {
+			print "\n" + jogo<"t1_Nome"> + " vs " + jogo<"t2_Nome"> + "\n";
+			print "Golos " + jogo<"t1_Nome"> + ": ";
+    	golsEq1Marcados = read_int; 
+			print "Golos " + jogo<"t2_Nome"> + ": ";
+    	golsEq2Marcados = read_int;
+			set jogos[["t1_Nome"] == jogo<"t1_Nome">] [["t2_Nome"] == jogo<"t2_Nome">] to ("GolosEq1": golsEq1Marcados, "GolosEq2": golsEq2Marcados);
+
+			eq1 = first equipas[["Nome"] == jogo<"t1_Nome">];
+			eq2 = first equipas[["Nome"] == jogo<"t2_Nome">];
+
+     	set eq1 to ("GolsMarcados": eq1<"GolsMarcados"> + golsEq1Marcados, "GolsSofridos": eq1<"GolsSofridos"> + golsEq2Marcados);
+     	set eq2 to ("GolsMarcados": eq2<"GolsMarcados"> + golsEq2Marcados, "GolsSofridos": eq2<"GolsSofridos"> + golsEq1Marcados);
+    }
+
+		for equipa	 in equipas {
+			jogosCasa = jogos[["t1_Nome"] == equipa<"Nome">];
+			jogosFora = jogos[["t2_Nome"] == equipa<"Nome">];
+
+			vitorias = size jogosCasa[["GolosEq1"] > ["GolosEq2"]] + size jogosFora[["GolosEq2"] > ["GolosEq1"]];
+			empates = size jogosCasa[["GolosEq1"] == ["GolosEq2"]] + size jogosFora[["GolosEq2"] == ["GolosEq1"]];
+			derrotas = size jogosCasa[["GolosEq1"] < ["GolosEq2"]] + size jogosFora[["GolosEq2"] < ["GolosEq1"]];
+
+     	set equipas[["Nome"] == equipa<"Nome">] to ("NumVit": vitorias, "NumEmp": empates, "NumDerr": derrotas);
+		}
+}
+
+equipas = {"Nome": String, "NumVit": Int, "NumEmp": Int, "NumDerr": Int, "GolsMarcados": Int, "GolsSofridos": Int, "Pontos": ["NumVit"] * 3 + ["NumEmp"]};
+
+check equipas with ["NumVit"] >= 0;
+check equipas with ["NumEmp"] >= 0;
+check equipas with ["NumDerr"] >= 0;
+check equipas with ["GolsMarcados"] >= 0;
+check equipas with ["GolsSofridos"] >= 0;
+check equipas with ["Pontos"] >= 0;
+
+count = 1;
+while true {
+	print "Nome da " + str_val count + "ª equipa: (Vazio para terminar) ";
+	nome = read_str;
+
+	if nome == "" { break; }
+	add ("Nome": nome) to equipas;
+	count = count + 1;
+}
+
+eq1 = equipas[("Nome", )];
+eq2 = equipas[("Nome", )];
+jogos = eq1 ^ eq2;	// Operação para multiplicar as colunas e obter todas as possibilidades de jogos, o resultado são 2 colunas
+
+jogos = jogos[["t1_Nome"] != ["t2_Nome"]];
+jogos = jogos + { "GolosEq1": Int, "GolosEq2": Int };
+getResultados(jogos, equipas);		
+
+printBestThree(equipas);

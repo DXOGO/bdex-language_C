@@ -1,0 +1,8 @@
+a=2;
+b=3;/*texto e tal*/
+def teste(arg1, arg2) {}
+c=4;
+list = (1,2,3,4,5);
+for item in list { print item; }
+while true { break; }
+if true {print teste(1, 2);} else if false {print teste(10,15);} else {print(1,1);}

@@ -1,0 +1,18 @@
+Metadata-Version: 2.1
+Name: bdexpy
+Version: 0.0.1
+Summary: Destination Language for bdex
+Home-page: https://github.com/detiuaveiro/bdex-comp-02
+Author: comp02 2020/21
+Author-email: vascoregal24@ua.pt
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+UNKNOWN
+

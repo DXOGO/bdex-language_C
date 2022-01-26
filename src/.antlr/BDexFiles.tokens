@@ -1,0 +1,13 @@
+T__0=1
+T__1=2
+T__2=3
+Path=4
+File=5
+Dir=6
+Subdir=7
+Root_Dirs=8
+String=9
+WS=10
+';'=1
+'SAVE'=2
+'LOAD'=3

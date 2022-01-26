@@ -1,0 +1,79 @@
+def showMenu() {
+	print "1. Adicionar aluno e respetivas notas\n";
+	print "2. Imprimir lista de alunos e notas\n";
+	print "3. Imprimir lista de alunos aprovados\n";
+	print "4. Imprimir a lista dos 10 alunos com melhor nota\n";
+	print "5. Eliminar aluno\n";
+	print "6. Sair\n";
+}
+
+def cabecalho() {
+	print "NMEC" + "\t" + "Nome" + "\t" + "NotaTP" + "\t" + "NotaP" + "\t" + "NotaF" + "\t" + "Aprovacao" + "\n";
+}
+
+def printResults(alunos, results) {
+	cabecalho();
+	for aluno in alunos * results {
+	    	print   + "\t" + aluno<"NAME"> + "\t" + str_val aluno<"NotaTP"> + "\t";
+	    	print str_val aluno<"NotaP"> + "\t" + str_val aluno<"NotaF"> + "\t" + str_val aluno<"Aprovacao"> + "\n";
+	}
+}
+
+
+def aprovacao(alunos, results) {
+	printResults(alunos, results[["Aprovacao"] == true]);
+}
+
+def addAluno(alunos, results) {
+	print "NMEC: ";
+	nmec = read_int;
+
+	print "Nome: ";
+	nome = read_str;
+
+	print "NotaTP: ";
+	notaTP = read_real;
+	
+	print "NotaP: ";
+	notaP = read_real;
+
+	add(nmec, nome) to alunos;
+	add("NMEC": nmec, "NotaTP": notaTP, "NotaP": notaP) to resultados;
+}
+
+alunos = {"NMEC": Int, "NAME": String};
+
+resultados = {"NMEC": Int, "NotaTP": Real, "NotaP": Real, "NotaF": ["NotaTP"] * 0.4 + ["NotaP"] * 0.6, "Aprovacao": ["NotaF"] >= 9.5};
+
+check resultados with ["NotaTP"] >= 0;
+check resultados with ["NotaP"] >= 0;
+check resultados with ["NotaF"] >= 0;
+
+while true {
+	showMenu();
+	print "Opção escolhida: ";
+	opcao = read_int;
+	
+	if opcao == 1 {
+		addAluno(alunos, resultados);
+	}
+	else if opcao == 2 {
+		printResults(alunos, resultados);
+	}
+	else if opcao == 3 {
+		aprovacao(alunos, resultados);
+	}
+	else if opcao == 4 {
+		ordered = sort resultados by "NotaF" desc;
+		ordered = pop 10 from ordered;
+		print ordered;
+	}
+	else if opcao == 5 {
+		print "NMEC: ";
+		nmec = read_int;
+		del alunos[["NMEC"] == nmec];
+	}
+	else if opcao == 6 {
+		break;
+	}
+}

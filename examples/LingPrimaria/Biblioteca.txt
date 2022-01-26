@@ -1,0 +1,380 @@
+def proxIdentificador(tabela, coluna) {
+  if size tabela == 0 {
+    return 1;
+  } else {
+    sort tabela by coluna desc;
+    for row in tabela {
+      return row<coluna> + 1;
+    }
+  }
+}
+
+def addLivro(tabelaLivros, tabelaAutores, tabelaNacionalidades) {
+  duplicado = true;
+  referencia = 0;
+
+  while duplicado {
+    duplicado = false;
+    print "Referência: ";
+    referencia = read_int;
+    duplicado = size tabelaLivros[["LivroRef"] == referencia] > 0;
+
+    if duplicado {
+      print "Referência já existe!";
+    }
+  }
+
+  print "Titulo: ";
+  titulo = read_str;
+
+  print "Editora: ";
+  editora = read_str;
+
+  print "Nº de Edição: ";
+  nedicao = read_int;
+
+  print "Ano da primeira edição: ";
+  anoprimeira = read_int;
+
+  print "Ano desta edição: ";
+  anoatual = read_int;
+
+  if size add (
+      "LivroRef": referencia, "Titulo": titulo, 
+      "Editora": editora, "NumEdicao": nedicao, 
+      "AnoLancamento": anoprimeira, "AnoEdicaoAtual": anoatual
+    ) to tabelaLivros == 0 {
+      print "Não foi possível inserir o livro, Confirme os dados e tente outra vez!";
+      return false;
+  }
+
+  while true {
+    print "Nome de autor: (vazio para acabar)";
+    nome = read_str;
+    if nome == "" { break; }
+
+    print "\n";
+    for nacionalidade in sort tabelaNacionalidades by "IdNacionalidade" {
+      print str_val nacionalidade<"IdNacionalidade"> + ". " + nacionalidade<"Designacao"> + "\n";
+    }
+
+    nac = 0;
+    while true {
+      print "Numero da nacionalidade: ";
+      nac = read_int;
+
+      if size tabelaNacionalidades[["IdNacionalidade"] == nac] > 0 { break; }
+      else { print "Nacionalidade Inválida!\n"; }
+    }
+
+    add (referencia, nome, nac) to tabelaAutores;
+  }
+  return true;
+}
+
+def sizeRegistos(registosTable, tipoId, refLivro) {
+  return size registosTable[["LivroRef"] == refLivro][["IdTipoRegisto"] == tipoId];
+}
+
+def nLivrosRequisitados(registosTable, refLivro) {
+  return sizeRegistos(registosTable, 1, refLivro) - sizeRegistos(registosTable, 2, refLivro);
+}
+
+def nLivrosArranjo(registosTable, refLivro) {
+  return sizeRegistos(registosTable, 3, refLivro) - sizeRegistos(registosTable, 4, refLivro);
+}
+
+def livrosDisponiveis (livrosTable, registosTable, referencia) {
+  livro = livrosTable[["LivroRef"] == referencia];
+  num = 0;
+  for l in livro { num = l<"NumExemplares">; }
+  return num - nLivrosRequisitados(registosTable, referencia) - nLivrosArranjo(registosTable, referencia);
+}
+
+livros = import "livros";
+if livros != false {
+  print "Tabela livros foi importada com " + str_val size livros + " linhas!\n";
+}
+else {
+  livros = {
+    "LivroRef": Int,            // Referência do livro
+    "Titulo": String,           // Titulo do livro
+    "Editora": String,          // Editora do livro
+    "NumEdicao": Int,           // Numero da edição 
+    "AnoLancamento": Int,       // Ano de lançamento da primeira edição
+    "AnoEdicaoAtual": Int,      // Ano de lançamento da edição atual
+    "Rating": Real,             // Rating dos leitores
+    "NumAvaliacoes": Int,       // Nº de leitores a avaliar
+    "NumExemplares": Int        // Nº de exemplares
+  };
+}
+
+livros = livros + { "RatingsTotal": ["Rating"] * ["NumAvaliacoes"] };
+
+check livros with ["LivroRef"] > 0;
+check livros with ["NumEdicao"] > 0;
+check livros with ["Rating"] >= 0;
+check livros with ["Rating"] <= 5;
+check livros with ["NumAvaliacoes"] >= 0;
+check livros with ["NumExemplares"] >= 0;
+check livros with ["AnoEdicaoAtual"] >= ["AnoLancamento"];
+
+autores = import "autores";
+if autores != false {
+  print "Tabela autores foi importada com " + str_val size autores + " linhas!\n";
+}
+else {
+  autores = {
+    "LivroRef": Int,            // Referência do livro (Foreign Key)
+    "NomeAutor": String,        // Nome do autor
+    "IdNacionalidade": Int      // Nacionalidade do Autor
+  };
+}
+
+leitores = import "leitores";
+if leitores != false {
+  print "Tabela leitores foi importada com " + str_val size leitores + " linhas!\n";
+}
+else {
+  leitores = {
+    "NumLeitor": Int,
+    "Nome": String,
+    "Ativo": Int
+  };
+
+  add (0, "ARRANJO", 1) to leitores;
+}
+
+check leitores with ["Ativo"] >= 0;
+check leitores with ["Ativo"] <= 1;
+
+registos = import "registos";
+if registos != false {
+  print "Tabela registos foi importada com " + str_val size registos + " linhas!\n";
+}
+else {
+  registos = {
+    "LivroRef": Int,        // Referência do livro (Foreign Key)
+    "IdTipoRegisto": Int,   // Tipo de registo (Foreign Key)
+    "NumLeitor": Int        // Numero do leitor (Foreign Key)
+  };
+}
+
+nacionalidades = import "nacionalidades";
+if nacionalidades != false {
+  print "Tabela nacionalidades foi importada com " + str_val size nacionalidades + " linhas!\n";
+}
+else {
+  nacionalidades = {
+    "IdNacionalidade": Int,
+    "Designacao": String
+  };
+
+  add (proxIdentificador(nacionalidades, "IdNacionalidade"), "Portuguesa")  to nacionalidades;
+  add (proxIdentificador(nacionalidades, "IdNacionalidade"), "Inglesa")     to nacionalidades;
+  add (proxIdentificador(nacionalidades, "IdNacionalidade"), "Alemã")       to nacionalidades;
+  add (proxIdentificador(nacionalidades, "IdNacionalidade"), "Espanhola")   to nacionalidades;
+  add (proxIdentificador(nacionalidades, "IdNacionalidade"), "Francesa")    to nacionalidades;
+  add (proxIdentificador(nacionalidades, "IdNacionalidade"), "Mexicana")    to nacionalidades;
+  add (proxIdentificador(nacionalidades, "IdNacionalidade"), "Outro")       to nacionalidades;
+}
+
+tipoRegisto = import "tipoRegisto";
+if tipoRegisto != false {
+  print "Tabela tipoRegisto foi importada com " + str_val size tipoRegisto + " linhas!\n";
+}
+else {
+  tipoRegisto = {
+    "IdTipoRegisto": Int,
+    "Designacao": String
+  };
+
+  add (proxIdentificador(tipoRegisto, "IdTipoRegisto"), "Requisição")     to tipoRegisto;
+  add (proxIdentificador(tipoRegisto, "IdTipoRegisto"), "Entrega")        to tipoRegisto;
+  add (proxIdentificador(tipoRegisto, "IdTipoRegisto"), "Para Restauro")  to tipoRegisto;
+  add (proxIdentificador(tipoRegisto, "IdTipoRegisto"), "Restaurado")     to tipoRegisto;
+}
+
+while true {
+  export livros;
+  export autores;
+  export leitores;
+  export registos;
+  export nacionalidades;
+  export tipoRegisto;
+
+  print "Escolha uma opção:\n";
+  print "1. Adicionar livro\n";
+  print "2. Alterar nº de exemplares\n";
+  print "3. Ver livros\n";
+  print "4. Registar leitor\n";
+  print "5. Requisitar livro\n";
+  print "6. Devolver livro\n";
+  print "7. Ver registos\n";
+  print "8. Ver leitores\n";
+  print "9. Top 3 livros\n";
+  print "10. Sair\n";
+  print "Opção: ";
+
+  opcao = read_int;
+  print "\n";
+
+  if opcao == 1 {
+    addLivro(livros, autores, nacionalidades);
+  } else if opcao == 2 {
+    print "Referencia: ";
+    ref = read_int;
+
+    livro = livros[["LivroRef"] == ref];
+    
+    if size livro > 0 {
+      for l in livro { print "'" + l<"Titulo"> + "' tem " + str_val l<"NumExemplares"> + " exemplares.\n"; }
+
+      print "Nova Quantidade: ";
+      set livro to ("NumExemplares": read_int);
+    }
+    else { print "Livro não registado!\n"; }
+  } else if opcao == 3 {
+    print livros * autores * nacionalidades;
+  } else if opcao == 4 {
+    print "Nome: ";
+    add (proxIdentificador(leitores, "NumLeitor"), read_str, 1) to leitores;
+  } else if opcao == 5 {
+    print "Referencia: ";
+    ref = read_int;
+    disponiveis = livrosDisponiveis(livros, registos, ref);
+
+    if disponiveis > 0 {
+      nleitor = 0;
+      while true {
+        print "Nº de Leitor: ";
+        nleitor = read_int;
+
+        leitor = leitores[["NumLeitor"] == nleitor];
+        if size leitor == 0 {
+          print "Leitor não existe!\n";
+        } else {
+          ativo = 0;
+          for l in leitor { ativo = l<"Ativo">; }
+
+          if ativo == 1 { break; }
+          else { print "Conta de leitor encerrada"; }
+        }
+      }
+
+      add (ref, 1, nleitor) to registos;
+    } else {
+      print "Livro não disponível!";
+    }
+  } else if opcao == 6 {
+    print "Referencia: ";
+    ref = read_int;
+    
+    print "1. Requisição\n";
+    print "2. Arranjo\n";
+    print "Tipo de Devolução: ";
+    tipo = read_int;
+
+    if tipo == 1 {
+      if nLivrosRequisitados(registos, ref) > 0 {
+        print "Nº de Leitor: ";
+        nleitor = read_int;
+
+        if size leitores[["NumLeitor"] == nleitor] > 0 {
+          registosLeitor = registos[["NumLeitor"] == nleitor][["LivroRef"] == ref];
+          livroRequisitado = size registosLeitor[["IdTipoRegisto"] == 1];
+          livroEntregue = size registosLeitor[["IdTipoRegisto"] == 2];
+          if livroRequisitado > livroEntregue {
+            add (ref, 2, nleitor) to registos;
+
+            print "Rating do utilizador: (-1 para passar) ";     
+            rating = read_int;
+
+            if rating >= 0 {
+              livro = livros[["LivroRef"] == ref];
+              totalrating = 0;
+              totalraters = 0;
+              for l in livro { totalrating = l<"RatingsTotal"> + rating; totalraters = l<"NumAvaliacoes"> + 1; }
+              set livro to ("Rating": totalrating/totalraters, "NumAvaliacoes": totalraters);
+            }
+
+            print "O livro precisa de arranjo? (S/N) ";
+            arranjo = read_str == "S";
+
+            if arranjo {
+              add (ref, 3, nleitor) to registos;
+
+              nArranjos = size registos[["NumLeitor"] == nleitor][["IdTipoRegisto"] == 3];
+              if nArranjos == 3 {
+                set leitores[["NumLeitor"] == nleitor] to ("Ativo": 0);
+                print "Conta encerrada por atingir 3 arranjos!\n";
+              }
+              else if nArranjos < 3 { print "Daqui a '" + str_val (3 - nArranjos) + "' arranjos a conta será encerrada!\n"; }
+              else { print "Esta conta já foi encerrada!"; }
+
+              print "Livro enviado para arranjo!\n";
+            } else {
+              print "Livro devolvido á biblioteca!\n";
+            }
+
+          } else {
+            print "Nenhum livro desta referência requisitado por este leitor!";
+          }
+        } else {
+          print "Leitor não existe!";
+        }
+      } else {
+        print "Nenhum livro desta referência requisitado!";
+      }
+    }
+    else if tipo == 2 {
+      if nLivrosArranjo(registos, ref) > 0 {
+        add (ref, 4, 0) to registos;
+      } else {
+        print "Nenhum livro desta referência em arranjo!";
+      }
+    }
+    else {
+        print "Opção inválida!";
+    }
+  } else if opcao == 7 {
+    join = registos * livros * tipoRegisto * leitores;
+    print join[("Titulo", "Nome", "Designacao")];
+  } else if opcao == 8 {
+    print "Mostrar também desativos? (S/N)";
+    if read_str == "S" { print leitores; }
+    else { print leitores[["Ativo"] == 1]; }
+  } else if opcao == 9 {
+    print "1. Top 3 Rating\n";
+    print "2. Top 3 Requisições\n";
+    print "3. Top 3 Rating Autor Portugês\n";
+    print "Opção: ";
+
+    op = read_int;
+    if op == 1 { print pop 3 from sort livros by "Rating" desc; }
+    else if op == 2 {
+      temp = { "LivroRef": Int, "NumRequisicoes": Int };
+      for r in registos[["IdTipoRegisto"] == 1] {
+        livro = temp[["LivroRef"] == r<"LivroRef">];
+        if size livro == 0 { add ("LivroRef": r<"LivroRef">) to temp; }
+        num = 0;
+        for t in livro { num = t<"NumRequisicoes">; }
+        set livro to ("NumRequisicoes": num+1);
+      }
+      tabLivros = livros * temp;
+      tabLivros = sort tabLivros by "NumRequisicoes" desc;
+      print pop 3 from tabLivros;
+    }
+    else if op == 3 { 
+      livrosPT = livros * autores[["IdNacionalidade"] == 1];
+      print pop 3 from sort livrosPT by "Rating" desc; 
+    }
+    else { print "Opção Inválida!"; }
+  } else if opcao == 10 {
+    break;
+  } else {
+    print "Opção '" + str_val opcao + "' não é reconhecida!\n";
+  }
+
+  print "\n";
+}

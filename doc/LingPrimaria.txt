@@ -1,0 +1,56 @@
+# Criar uma variável
+*nome_var* = *valor*;
+
+# Valores
+INT | REAL | STR            # Tipo
+[0-9]+                      # INT
+[0-9]+ '.' [0-9]+           # REAL
+'"' .*? '"'                 # STRING
+[a-z][a-zA-Z0-9]            # Variável
+(*valor*, ...)              # Tuple de Valores
+(String: *valor*, ...)      # Tuple chave-valor
+{String: Tipo | Formula}    # Definição de Tabela
+[String] | valor            # Membro de Formula
+
+# Contas
+*valor* - *valor*
+*valor* + *valor*
+*valor* / *valor*
+*valor* * *valor*
+*valor* % *valor*
+
+# Condições
+*valor* == *valor*
+*valor* != *valor*
+*valor* < *valor*
+*valor* <= *valor*
+*valor* > *valor*
+*valor* >= *valor*
+TRUE
+FALSE
+
+# Operar em Tabelas
+ADD *tuple* TO *tabela*
+ORDER *tabela* BY *string_tuple* (ASC | DESC)
+POP *INT* FROM *tabela*
+DEL *tabela*
+SET *tabela* TO *tuple*
+*tabela*[*string_tuple*]
+*tabela* . *tabela*
+*tabela* * *tabela*
+*tabela* + *tabeladef*
+
+# Blocos de Código
+FOR *var* IN *tabela* {...}
+IF *condicao* {...} ELSE IF *condicao* {...} ELSE {...}
+WHILE *condicao* {...}
+DEF *varname* (*var*, ...) {... RETURN *valor*}
+
+# Comandos
+READ_STR | READ_INT | READ_REAL
+PRINT *valor_var*
+SIZE *tabela*
+
+# Persistência
+IMPORT *string*
+EXPORT *tabela*

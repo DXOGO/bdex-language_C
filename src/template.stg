@@ -1,0 +1,58 @@
+main(command) ::= <<
+from bdexpy.structures import Table,TableOperator
+from bdexpy.enums import Order, Type
+from bdexpy.instructions import *
+
+
+<program(command, false)>
+>>
+
+program(command, pass=true) ::= <<
+<if(command)>
+<command; separator="\n"> 
+<else>
+<if(pass)>pass<endif>
+<endif>
+
+>>
+
+codeblock(name, condition, program, var=false, hasArgs=false, arg=false) ::= <<
+<name><if(var)> <var> in<endif><if(condition)> <condition><endif><if(hasArgs)> (<arg; separator=", ">)<endif>:
+  <program>
+>>
+
+ifblock(condition, program) ::= <%<codeblock("if", condition, program)>%>
+elifblock(condition, program) ::= <%<codeblock("elif", condition, program)>%>
+elseblock(program) ::= <%<codeblock("else", false, program)>%>
+whileblock(condition, program) ::= <%<codeblock("while", condition, program)>%>
+forblock(condition, program, var) ::= <%<codeblock("for", condition, program, var)>%>
+funcblock(condition, program, arg) ::= <%<codeblock("def", condition, program, false, true, arg)>%>
+
+break(stat) ::= <%break%>
+return(stat, value) ::= <%return <value>%>
+type(stat, type) ::= <%Type.<type>%>
+
+print(stat, value) ::= <%print(<value>, end="")%>
+size(stat, value) ::= <%len(<value>)%>
+
+table(stat, name, column) ::= <%Table("<name>")<column>%>
+column(stat, coldef) ::= <%.add_col({ <coldef> })%>
+
+simptuple(stat, val, col) ::= <%<if(val)>(<val; separator=", "><col>)<else>tuple()<endif>%>
+kvtuple(stat, kv) ::= <%{ <if(kv)><kv; separator=", "><endif> }%>
+kv(stat, key, value) ::= <%<key>: <value>%>
+prior(stat, expr) ::= <%(<expr>)%>
+
+operation(stat, expr1, expr2, op) ::= <%<expr1> <op> <expr2>%>
+assign(stat, var, value) ::= <%<var> = <value>%>
+funcall(stat, name, attr) ::= <%<name>(<if(attr)><attr; separator=", "><endif>)%>
+
+tableadd(stat, table, dict) ::= <%<table>.add(<dict>)%>
+tableorder(stat, table, column, dir) ::= <%<table>.order(<column>, Order.<dir>)%>
+colselect(stat, row, expr) ::= <%<row>.value(<expr>)%>
+tableselct(stat, table, var, expr) ::= <%<table>.select(lambda <var>: <expr>)%>
+tabledel(stat, table) ::= <%<table>.delete()%>
+tablealter(stat, table, values) ::= <%<table>.alter(<values>)%> 
+tablecheck(stat, table, var, value) ::= <%<table>.check(lambda <var>: <value>)%>
+tablepop(stat, var, value) ::= <%<var>.pop(<value>)%>
+firstline(stat, table) ::= <%<table>.rows[0]%>
