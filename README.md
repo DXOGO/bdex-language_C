@@ -1,5 +1,7 @@
 # BDex language
 
+Foi escolhido para este projeto a linguagem BDex que permite a criação, leitura e formatação de tabelas. Neste trabalho encontra-se a possibilidade de declaração de variáveis nos cabeçalhos e operações para editar linhas e colunas de tabelas (ações de adição, remoção, merge, etc). Também com isto vem a possibilidade de dar import a tabelas externas e fazer a sua leitura, assim como dar export de tabelas também.
+
 -----
 
 ## Group members
@@ -20,8 +22,4 @@
 - **src** -- all source code should in this folder
 - **doc** -- reports and any other documentation should be inside this folder
 - **examples** -- example programs in your proposed language should be inside this folder
-
-## Deliverables
-
-...
 
